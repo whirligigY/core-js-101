@@ -57,7 +57,6 @@ function getJSON(obj) {
  */
 function fromJSON(proto, json) {
   const valuesArr = JSON.parse(json);
-  console.log(valuesArr);
   function Abstract() {
     Object.keys(valuesArr).forEach((el) => {
       this[el] = valuesArr[el];
