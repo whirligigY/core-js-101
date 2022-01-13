@@ -174,7 +174,6 @@ function isInsideCircle(circle, point) {
  */
 function findFirstSingleChar(str) {
   const arrStr = str.split('').filter((el) => el !== ' ');
-  console.log(str.toLowerCase().split(''));
   const arrUniq = [...new Set(arrStr)];
   const len = arrStr.length - 1;
   const elFind = arrUniq.find((el) => len === arrStr.filter((item) => item !== el).length);
