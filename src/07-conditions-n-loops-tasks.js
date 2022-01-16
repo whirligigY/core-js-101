@@ -203,8 +203,9 @@ function findFirstSingleChar(str) {
  *   5, 3, true, true   => '[3, 5]'
  *
  */
-function getIntervalString(/* a, b, isStartIncluded, isEndIncluded */) {
-  throw new Error('Not implemented');
+function getIntervalString(a, b, isStartIncluded, isEndIncluded) {
+  const arr = [a, b].sort();
+  return `${isStartIncluded ? '[' : '('}${arr[0]}, ${arr[1]}${isEndIncluded ? ']' : ')'}`;
 }
 
 
@@ -220,10 +221,9 @@ function getIntervalString(/* a, b, isStartIncluded, isEndIncluded */) {
  * 'rotator' => 'rotator'
  * 'noon' => 'noon'
  */
-function reverseString(/* str */) {
-  throw new Error('Not implemented');
+function reverseString(str) {
+  return str.split('').reverse().join('');
 }
-
 
 /**
  * Reverse the specified integer number (put all digits in reverse order)
@@ -237,8 +237,9 @@ function reverseString(/* str */) {
  *   87354 => 45378
  *   34143 => 34143
  */
-function reverseInteger(/* num */) {
-  throw new Error('Not implemented');
+function reverseInteger(num) {
+  const number = num.toString().split('').reverse().join('');
+  return Number(number);
 }
 
 
@@ -262,8 +263,20 @@ function reverseInteger(/* num */) {
  *   5436468789016589 => false
  *   4916123456789012 => false
  */
-function isCreditCardNumber(/* ccn */) {
-  throw new Error('Not implemented');
+function isCreditCardNumber(ccn) {
+  const arrFromNum = ccn.toString().split('');
+  const deleteElem = arrFromNum.pop();
+  const arr = arrFromNum.reverse().map((el, index) => {
+    if (index % 2 === 0) {
+      const itemUp = (Number(el) * 2).toString().split('').reduce((acc, item) => Number(acc) + Number(item), 0);
+      return Number(el) * 2 > 9 ? itemUp : (Number(el) * 2);
+    }
+    return Number(el);
+  });
+  const sum = arr.reduce((ac, el) => ac + el, 0);
+  const res = (10 - (sum % 10)).toString().split('');// .reduce((acc, item) => Number(acc) + Number(item), 0);
+  const check = (10 - (sum % 10)) <= 9 ? 10 - (sum % 10) : Number(res[1]);
+  return check === Number(deleteElem);
 }
 
 /**
@@ -280,8 +293,10 @@ function isCreditCardNumber(/* ccn */) {
  *   10000 ( 1+0+0+0+0 = 1 ) => 1
  *   165536 (1+6+5+5+3+6 = 26,  2+6 = 8) => 8
  */
-function getDigitalRoot(/* num */) {
-  throw new Error('Not implemented');
+function getDigitalRoot(num) {
+  const sum = (numb) => numb.toString().split('').reduce((acc, item) => Number(acc) + Number(item), 0);
+  const res = sum(num);
+  return res <= 9 ? res : sum(res);
 }
 
 
@@ -306,8 +321,27 @@ function getDigitalRoot(/* num */) {
  *   '{)' = false
  *   '{[(<{[]}>)]}' = true
  */
-function isBracketsBalanced(/* str */) {
-  throw new Error('Not implemented');
+function isBracketsBalanced(str) {
+  const arrComb = {
+    '[': ']',
+    '{': '}',
+    '(': ')',
+    '<': '>',
+  };
+  const helpArr = ['{', '[', '(', '<'];
+  const arr = [];
+  const res = str.split('').every((el) => {
+    if (el === helpArr.find((item) => item === el)) {
+      arr.push(el);
+      return true;
+    }
+    if (el !== arrComb[arr[arr.length - 1]]) {
+      return false;
+    }
+    arr.pop();
+    return true;
+  });
+  return res && arr.length === 0 ? res : false;
 }
 
 
@@ -331,8 +365,17 @@ function isBracketsBalanced(/* str */) {
  *    365, 4  => '11231'
  *    365, 10 => '365'
  */
-function toNaryString(/* num, n */) {
-  throw new Error('Not implemented');
+function toNaryString(num, n) {
+  const arr = [];
+  function func(numm, nn) {
+    if (numm >= nn) {
+      arr.push(numm % nn);
+      if (Math.floor(numm / nn) < nn) arr.push(Math.floor(numm / nn));
+      func(Math.floor(numm / nn), nn);
+    }
+  }
+  func(num, n);
+  return Number(arr.reverse().join(''));
 }
 
 
@@ -350,6 +393,17 @@ function toNaryString(/* num, n */) {
  */
 function getCommonDirectoryPath(/* pathes */) {
   throw new Error('Not implemented');
+  /*
+  const updatedArr = pathes.map((el)=> el.split("/"));
+  const arr = [];
+  function func(el) {
+    if(updatedArr.some((item) => item === el)) {
+      arr.push(el);
+    }
+    return
+  }
+  func(updatedArr[0]);
+  */
 }
 
 
@@ -371,8 +425,11 @@ function getCommonDirectoryPath(/* pathes */) {
  *                         [ 6 ]]
  *
  */
-function getMatrixProduct(/* m1, m2 */) {
-  throw new Error('Not implemented');
+function getMatrixProduct(m1, m2) {
+  const iS = (m) => m.every((el, i) => el[i] === 1 && el.reduce((acc, it) => acc + it, 0) === 1);
+  if (iS(m1)) return m2;
+  if (iS(m2)) return m1;
+  return [[[...Array(m2.length)].reduce((acc, _, ind) => acc + (m1[0][ind] * m2[ind][0]), 0)]];
 }
 
 
@@ -406,8 +463,26 @@ function getMatrixProduct(/* m1, m2 */) {
  *    [    ,   ,    ]]
  *
  */
-function evaluateTicTacToePosition(/* position */) {
-  throw new Error('Not implemented');
+function evaluateTicTacToePosition(position) {
+  const length = Math.max(...position.map((el) => el.length));
+  const pos = position.map((el) => {
+    if (el.length < length) {
+      return [...Array(length)].map((item, index) => (el[index] ? el[index] : undefined));
+    }
+    return el;
+  });
+  const checkDiagMain = (val) => pos.every((el, i) => el[i] === val);
+  const checkDiagSecond = (val) => pos.every((el, i) => el[el.length - 1 - i] === val);
+  const checkLine = (val) => pos.some((el) => el.every((item) => item === val));
+  const checkHeight = (val, poss) => pos.every((el) => el[poss] === val);
+  if (checkDiagMain('X') || checkDiagSecond('X')) return 'X';
+
+  if (checkDiagMain('0') || checkDiagSecond('0')) return '0';
+  if (checkLine('X')) return 'X';
+  if (checkLine('0')) return '0';
+  if (checkHeight('X', 0) || checkHeight('X', 1) || checkHeight('X', 2)) return 'X';
+  if (checkHeight('0', 0) || checkHeight('0', 1) || checkHeight('0', 2)) return '0';
+  return undefined;
 }
 
 

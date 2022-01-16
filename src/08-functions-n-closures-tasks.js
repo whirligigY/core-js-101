@@ -24,6 +24,8 @@
  *
  */
 function getComposition(/* f, g */) {
+  // const pipe = (...fns) => x => fns.reduce((y, f) => f(y), x);
+  // return (f, g) => (x) => [g, f].reduce((acc, el) => el(y), x);
   throw new Error('Not implemented');
 }
 
