@@ -123,50 +123,113 @@ function fromJSON(proto, json) {
  *  For more examples see unit tests.
  */
 
-const cssSelectorBuilder = {
-  selector: '',
+class CssSelector {
+  constructor() {
+    this.selector = {
+      element: '',
+      id: '',
+      class: '',
+      attr: '',
+      pseudoClass: '',
+      pseudoElement: '',
+    };
+  }
+
+  checkSelectorExists(selector) {
+    if (this.selector[selector]) {
+      throw Error('Element, id and pseudo-element should not occur more then one time inside the selector');
+    }
+  }
+
+  checkSelectorOrder(selector) {
+    const reversedKeys = [...Object.keys(this.selector).reverse()];
+
+    for (let key = 0; key < reversedKeys.length; key += 1) {
+      if (reversedKeys[key] === selector) {
+        return;
+      }
+      if (this.selector[reversedKeys[key]]) {
+        throw Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+      }
+    }
+  }
+
   element(value) {
-    this.selector = `${value}`;
+    this.checkSelectorExists('element');
+    this.checkSelectorOrder('element');
+    this.selector.element = value;
     return this;
-  },
+  }
 
   id(value) {
-    this.selector += `#${value}`;
+    this.checkSelectorExists('id');
+    this.checkSelectorOrder('id');
+    this.selector.id = `#${value}`;
     return this;
-  },
+  }
 
   class(value) {
-    this.selector += `.${value}`;
+    this.checkSelectorOrder('class');
+    this.selector.class += `.${value}`;
     return this;
-  },
+  }
 
   attr(value) {
-    this.selector += `[${value}]`;
+    this.checkSelectorOrder('attr');
+    this.selector.attr += `[${value}]`;
     return this;
-  },
+  }
 
   pseudoClass(value) {
-    this.selector += `:${value}`;
+    this.checkSelectorOrder('pseudoClass');
+    this.selector.pseudoClass += `:${value}`;
     return this;
-  },
+  }
 
   pseudoElement(value) {
-    this.selector += `::${value}`;
+    this.checkSelectorExists('pseudoElement');
+    this.checkSelectorOrder('pseudoElement');
+    this.selector.pseudoElement = `::${value}`;
     return this;
-  },
-
-  combine(/* selector1, combinator, selector2 */) {
-    // this.selector = `${selector1.selector} ${combinator} ${selector2.selector}`;
-    // return this;
-    throw new Error('Not implemented');
-  },
+  }
 
   stringify() {
-    const select = this.selector;
-    this.selector = '';
-    return select;
-  },
+    return Object.values(this.selector).join('');
+  }
+}
 
+const cssSelectorBuilder = {
+  selector: '',
+  createSelector(selector, value) {
+    const builder = new CssSelector();
+    builder[selector](value);
+    return builder;
+  },
+  element(value) {
+    return this.createSelector('element', value);
+  },
+  id(value) {
+    return this.createSelector('id', value);
+  },
+  class(value) {
+    return this.createSelector('class', value);
+  },
+  attr(value) {
+    return this.createSelector('attr', value);
+  },
+  pseudoClass(value) {
+    return this.createSelector('pseudoClass', value);
+  },
+  pseudoElement(value) {
+    return this.createSelector('pseudoElement', value);
+  },
+  combine(selector1, combinator, selector2) {
+    this.selector = `${selector1.stringify()} ${combinator} ${selector2.stringify()}`;
+    return this;
+  },
+  stringify() {
+    return this.selector;
+  },
 };
 
 
